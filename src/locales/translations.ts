@@ -30,7 +30,7 @@ export const translations = {
     },
     contact: {
       titlePart1: "Let's Put On",
-      titlePart2: "A Show",
+      titlePart2: "A Show.",
       description: "Directing, producing, or designing — if you've got a project in mind, I'd love to hear about it.",
       name: "NAME *",
       email: "EMAIL *",
