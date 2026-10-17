@@ -1,0 +1,191 @@
+import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { FadeIn } from './UI';
+import { projects } from '../data';
+import { X, Play, ExternalLink } from 'lucide-react';
+import { useLanguage } from '../contexts/languageContextObject';
+
+const ProjectCard = ({ project, index }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const { t } = useLanguage();
+
+  const modalContent = (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-lg"
+          onClick={() => setIsOpen(false)}
+        >
+          <button onClick={() => setIsOpen(false)} className="absolute top-6 right-6 text-white hover:text-gray-400 z-50 transition-colors">
+            <X size={32} />
+          </button>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 h-full lg:h-auto overflow-y-auto pt-16 lg:pt-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="lg:col-span-2 aspect-video bg-black/50 border border-white/10 relative shadow-2xl overflow-hidden">
+              <img 
+                src={project.image} 
+                alt={project.title}
+                className="w-full h-full object-cover grayscale"
+              />
+            </div>
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+              className="flex flex-col justify-center space-y-6"
+            >
+              <div>
+                <h3 className="text-sm tracking-widest text-gray-400 uppercase font-bold mb-2 font-mono">{t.work.projectDetails}</h3>
+                <h2 className="text-4xl font-display font-bold text-white mb-2 uppercase">{project.title}</h2>
+                <p className="text-gray-300 font-mono text-xs uppercase tracking-widest mb-4">{project.role}</p>
+                <p className="text-gray-500 font-mono text-xs uppercase tracking-widest mb-4">{project.org}</p>
+                <p className="text-gray-400 text-base leading-relaxed font-light">{project.description}</p>
+                {project.videoUrl && (
+                  <a
+                    href={project.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-6 inline-flex items-center gap-2 px-5 py-3 bg-white text-black font-bold uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors"
+                  >
+                    <Play size={14} className="fill-black" />
+                    Watch Video
+                    <ExternalLink size={14} />
+                  </a>
+                )}
+              </div>
+              <div>
+                <h4 className="text-xs uppercase tracking-widest text-gray-500 mb-3 font-mono">{t.work.toolsUsed}</h4>
+                <div className="flex flex-wrap gap-2">
+                   {project.tools.map((tool: string) => (
+                     <span key={tool} className="px-3 py-1 border border-white/10 text-xs font-mono text-gray-300 bg-white/5 uppercase tracking-wider">
+                       {tool}
+                     </span>
+                   ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  return (
+    <>
+      <motion.div 
+        layout
+        className="relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center cursor-pointer group mb-16 md:mb-32 pl-12 md:pl-0"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20, filter: "blur(5px)" }}
+        viewport={{ once: true, margin: "-20%" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        onClick={() => setIsOpen(true)}
+      >
+        {/* Timeline node */}
+        <div className="absolute left-[-5px] md:left-1/2 md:-ml-[5px] w-[10px] h-[10px] bg-white rounded-full z-10 shadow-[0_0_10px_rgba(255,255,255,0.8)] mix-blend-screen group-hover:bg-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] group-hover:scale-150 transition-all duration-300"></div>
+
+        <div className={`md:col-span-5 ${index % 2 === 0 ? 'md:order-1 md:text-right md:pr-12' : 'md:order-3 md:pl-12'}`}>
+          <div className="text-gray-400 font-mono text-sm mb-2 opacity-80 drop-shadow-md">SEQ_{project.id}</div>
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-4 group-hover:text-white text-gray-300 transition-colors uppercase">
+            {project.title}
+          </h2>
+          <p className="text-gray-300 font-mono text-xs mb-1 uppercase tracking-widest">
+            {project.role}
+          </p>
+          <p className="text-gray-400 font-light opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block uppercase tracking-widest text-xs">
+            {project.category}
+          </p>
+        </div>
+        
+        <div className="md:col-span-2 hidden md:flex justify-center order-2">
+           {/* Center line space occupied by parent's pseudo track */}
+        </div>
+
+        <div 
+          className={`md:col-span-5 relative aspect-video overflow-hidden border border-white/10 bg-gray-900 ${index % 2 === 0 ? 'md:order-3' : 'md:order-1'}`}
+        >
+          <img 
+            src={project.image}
+            alt={project.title}
+            loading="lazy"
+            className="w-full h-full object-cover grayscale opacity-80 group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 ease-in-out"
+          />
+          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors duration-300"></div>
+          {project.videoUrl && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-black/50 border border-white/30 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
+                <Play size={20} className="text-white fill-white" />
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Modal Overlay Rendered via Portal to break out of z-index stacking context */}
+      {mounted ? createPortal(modalContent, document.body) : null}
+    </>
+  );
+}
+
+export default function Work() {
+  const [activeFilter, setActiveFilter] = useState('All');
+  const { t } = useLanguage();
+  
+  const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
+
+  const filteredProjects = activeFilter === 'All' 
+    ? projects 
+    : projects.filter(p => p.category === activeFilter);
+
+  return (
+    <section id="work" className="py-24 md:py-40 relative px-6 md:px-12 max-w-7xl mx-auto">
+      {/* Main Timeline Track */}
+      <div className="absolute left-[54px] md:left-1/2 -ml-[1px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-white/10 to-transparent z-0"></div>
+
+      <FadeIn className="text-center mb-10 md:mb-16">
+        <h2 className="text-4xl md:text-6xl font-display font-bold uppercase">{t.work.titlePart1} <span className="opacity-30">{t.work.titlePart2}</span></h2>
+      </FadeIn>
+
+      <FadeIn className="flex flex-wrap justify-center gap-3 mb-20 md:mb-28 relative z-10 max-w-3xl mx-auto">
+        {categories.map(category => (
+          <button
+            key={category}
+            onClick={() => setActiveFilter(category)}
+            className={`px-5 py-2 text-xs font-mono uppercase tracking-widest transition-all duration-300 ${
+              activeFilter === category 
+                ? 'bg-white text-black font-bold shadow-[0_0_15px_rgba(255,255,255,0.4)]' 
+                : 'border border-white/20 text-gray-400 hover:border-white/60 hover:text-white bg-black/50 backdrop-blur-sm'
+            }`}
+          >
+            {category === 'All' ? t.work.all : category}
+          </button>
+        ))}
+      </FadeIn>
+
+      <div className="relative z-10">
+        <AnimatePresence mode="popLayout">
+          {filteredProjects.map((project, index) => (
+            <ProjectCard key={project.id} project={project} index={index} />
+          ))}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+}
